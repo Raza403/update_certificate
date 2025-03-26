@@ -11,14 +11,23 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => data.suggestions);
     }
 
-    // Initialize autocomplete for user input
+    // Debounce function to limit AJAX calls
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    // Initialize autocomplete for user input with debounce
     new Autocomplete(userInput, {
-        source: function(query, response) {
+        source: debounce(function(query, response) {
             fetchUserSuggestions(query).then(response);
-        }
+        }, 300) // 300ms delay
     });
 
-    // Fetch courses based on selected student
+    // Fetch courses based on selected student (unchanged)
     userInput.addEventListener('change', function() {
         const userid = this.value;
 
