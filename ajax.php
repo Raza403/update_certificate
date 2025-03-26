@@ -6,15 +6,40 @@ $query = optional_param('query', '', PARAM_TEXT);
 $userid = optional_param('userid', 0, PARAM_INT);
 
 if ($query) {
-    // Handle autocomplete for users
-    $users = $DB->get_records_sql('SELECT id, CONCAT(firstname, " ", lastname) AS name 
-                                   FROM {user} 
-                                   WHERE CONCAT(firstname, " ", lastname) LIKE ? 
-                                   AND deleted = 0', ['%' . $query . '%']);
+    // Clean and prepare the query
+    $query = trim($query);
+    $search_terms = explode(' ', $query); // Split query into terms (e.g., "Ahmed Raza" -> ["Ahmed", "Raza"])
+    $conditions = [];
+    $params = [];
 
-    $suggestions = [];
-    foreach ($users as $user) {
-        $suggestions[] = ['id' => $user->id, 'name' => $user->name];
+    // Build conditions for firstname and lastname separately
+    foreach ($search_terms as $term) {
+        if (!empty($term)) {
+            $conditions[] = '(LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ?)';
+            $params[] = '%' . strtolower($term) . '%';
+            $params[] = '%' . strtolower($term) . '%';
+        }
+    }
+
+    // If no valid terms, return empty result
+    if (empty($conditions)) {
+        $suggestions = [];
+    } else {
+        // Combine conditions with AND to match all terms
+        $sql_conditions = implode(' AND ', $conditions);
+        $sql = "SELECT id, CONCAT(firstname, ' ', lastname) AS name 
+                FROM {user} 
+                WHERE ($sql_conditions) 
+                AND deleted = 0 
+                ORDER BY lastname, firstname 
+                LIMIT 20"; // Limit to 20 results for performance
+
+        $users = $DB->get_records_sql($sql, $params);
+
+        $suggestions = [];
+        foreach ($users as $user) {
+            $suggestions[] = ['id' => $user->id, 'name' => $user->name];
+        }
     }
 
     header('Content-Type: application/json');
