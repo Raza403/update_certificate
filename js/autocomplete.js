@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300) // 300ms delay
     });
 
-    // Fetch courses based on selected student (unchanged)
+    // Fetch courses based on selected student
     userInput.addEventListener('change', function() {
         const userid = this.value;
 

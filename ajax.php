@@ -45,7 +45,7 @@ if ($query) {
     header('Content-Type: application/json');
     echo json_encode(['suggestions' => $suggestions]);
 } elseif ($userid) {
-    // Handle course retrieval based on user (unchanged)
+    // Handle course retrieval based on user
     $enrolled_courses = enrol_get_users_courses($userid);
     
     $courses = [];
