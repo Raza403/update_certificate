@@ -25,6 +25,30 @@ if ($mform->is_cancelled()) {
     $completiondate = isset($fromform->completiondate) && is_numeric($fromform->completiondate) ? intval($fromform->completiondate) : 0;
     $userid = $fromform->userid;
     $courseid = $fromform->courseid;
+    if ($completiondate > 0) {
+        $completion = $DB->get_record('course_completions', [
+            'userid' => $userid,
+            'course' => $courseid
+        ]);
+
+        if ($completion) {
+            // Update existing completion date
+            $completion->timecompleted = $completiondate;
+            $DB->update_record('course_completions', $completion);
+            $message .= "Updated completion date for course $courseid.<br>";
+        } else {
+            // Insert new completion record if it doesn't exist
+            $completion = (object)[
+                'userid' => $userid,
+                'course' => $courseid,
+                'timeenrolled' => time(),
+                'timestarted' => time(),
+                'timecompleted' => $completiondate
+            ];
+            $DB->insert_record('course_completions', $completion);
+            $message .= "Inserted new completion date for course $courseid.<br>";
+        }
+    }
     $message = ''; // Initialize message
     $alert_class = 'alert-success'; // Default success class
 
