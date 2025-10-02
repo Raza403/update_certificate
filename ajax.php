@@ -15,8 +15,7 @@ if ($query) {
     // Build conditions for firstname and lastname separately
     foreach ($search_terms as $term) {
         if (!empty($term)) {
-            $conditions[] = '(LOWER(firstname) LIKE ? OR LOWER(lastname) LIKE ?)';
-            $params[] = '%' . strtolower($term) . '%';
+            $conditions[] = 'LOWER(email) LIKE ?';
             $params[] = '%' . strtolower($term) . '%';
         }
     }
@@ -27,12 +26,12 @@ if ($query) {
     } else {
         // Combine conditions with AND to match all terms
         $sql_conditions = implode(' AND ', $conditions);
-        $sql = "SELECT id, CONCAT(firstname, ' ', lastname) AS name 
-                FROM {user} 
-                WHERE ($sql_conditions) 
-                AND deleted = 0 
-                ORDER BY lastname, firstname 
-                LIMIT 20"; // Limit to 20 results for performance
+        $sql = "SELECT id, email AS name
+            FROM {user}
+            WHERE ($sql_conditions)
+            AND deleted = 0
+            ORDER BY email
+            LIMIT 20";
 
         $users = $DB->get_records_sql($sql, $params);
 
@@ -47,7 +46,7 @@ if ($query) {
 } elseif ($userid) {
     // Handle course retrieval based on user
     $enrolled_courses = enrol_get_users_courses($userid);
-    
+
     $courses = [];
     foreach ($enrolled_courses as $course) {
         $courses[] = ['id' => $course->id, 'fullname' => $course->fullname];
