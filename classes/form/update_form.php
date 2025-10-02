@@ -12,7 +12,7 @@ class update_form extends moodleform {
         $mform = $this->_form;
 
         // Autocomplete input for student selection
-        $mform->addElement('autocomplete', 'userid', get_string('selectstudent', 'local_update_certificate'), 
+        $mform->addElement('autocomplete', 'userid', get_string('selectstudent', 'local_update_certificate'),
             $this->get_students_for_autocomplete(), ['placeholder' => 'Start typing to search...']);
 
         // Dropdown for course selection (initially populated)
@@ -34,7 +34,7 @@ class update_form extends moodleform {
     // Method to get students for autocomplete
     private function get_students_for_autocomplete() {
         global $DB;
-        return $DB->get_records_menu('user', ['deleted' => 0], '', 'id, CONCAT(firstname, " ", lastname) as name');
+        return $DB->get_records_menu('user', ['deleted' => 0], 'email ASC', 'id, email');
     }
 
     // Method to get courses for dropdown (initially empty)
