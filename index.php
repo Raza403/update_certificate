@@ -21,6 +21,10 @@ $mform = new \local_update_certificate\form\update_form();
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/'));
 } else if ($fromform = $mform->get_data()) {
+    // Initialize message and alert class at the start
+    $message = '';
+    $alert_class = 'alert-success';
+
     // Process the form data
     $completiondate = isset($fromform->completiondate) && is_numeric($fromform->completiondate) ? intval($fromform->completiondate) : 0;
     $userid = $fromform->userid;
@@ -49,8 +53,6 @@ if ($mform->is_cancelled()) {
             $message .= "Inserted new completion date for course $courseid.<br>";
         }
     }
-    $message = ''; // Initialize message
-    $alert_class = 'alert-success'; // Default success class
 
     // Only update the renew by date if courseid is 14 and renewbydate is provided
     if ($courseid == 14 && isset($fromform->renewbydate)) {
